@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin — Login</title>
+<link rel="stylesheet" href="/admin/admin.css" />
+</head>
+<body>
+  <div class="page-login">
+    <form class="card" id="form-login">
+      <h1>Área Administrativa</h1>
+      <p class="sub">Acesso restrito à coordenação/gestão escolar.</p>
+
+      <div class="field">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" name="senha" required autocomplete="current-password" autofocus />
+      </div>
+
+      <div class="alert" id="alert-box" hidden></div>
+
+      <button type="submit">Entrar</button>
+    </form>
+  </div>
+  <script src="/admin/login.js"></script>
+</body>
+</html>

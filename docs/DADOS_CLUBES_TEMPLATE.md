@@ -1,19 +1,16 @@
 # Template de dados dos Clubes
 
-Preencha esta tabela na aba **Clubes** da Planilha Google (uma linha por clube).
-Quem cadastra os clubes normalmente é a coordenação/professores — não precisa saber programar,
-só editar a planilha.
+Os clubes ficam definidos no array `CLUBES_EXEMPLO` em [`db/database.js`](../db/database.js).
+Edite esse array com os dados reais e reinicie o servidor (ou refaça o deploy) —
+ele só é inserido automaticamente se a tabela `clubes` estiver vazia, então para
+clubes já existentes prefira editar direto pelo painel admin ou pelo banco.
 
-| ClubeID | Nome | Resumo | Presidente | Padrinho | VagasMax |
-|---------|------|--------|------------|----------|----------|
-| 1 | Robótica Criativa | Montagem e programação de robôs para desafios e mostras. | Nome do aluno presidente | Nome do professor padrinho | 20 |
-| 2 | | | | | |
+```js
+{ nome: 'Nome do Clube', resumo: 'Objetivo/descrição curta.', presidente: 'Nome do aluno', padrinho: 'Nome do professor', limite: 20 },
+```
 
-- **ClubeID**: número único e sequencial (não repita).
-- **Nome**: nome do clube, aparece nos cards.
-- **Resumo**: objetivo/descrição curta do clube (1-2 frases).
-- **Presidente**: nome do **aluno** que criou/lidera o clube.
-- **Padrinho**: nome do **professor** que apadrinha o clube.
-- **VagasMax**: número máximo de alunos que podem se inscrever.
-
-Depois de preencher, é só recarregar a página — o sistema lê a planilha automaticamente.
+- **nome**: nome do clube, único, aparece nos cards.
+- **resumo**: objetivo/descrição curta do clube (1-2 frases).
+- **presidente**: nome do **aluno** que criou/lidera o clube.
+- **padrinho**: nome do **professor** que apadrinha o clube.
+- **limite**: número máximo de alunos que podem se inscrever.

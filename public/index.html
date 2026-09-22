@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Escolha de Clubes — E.E. PEI José Ephim Mindlin</title>
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -19,7 +19,6 @@
 
 <main class="layout">
 
-  <!-- Painel de vagas em tempo real -->
   <aside class="card vagas-card">
     <div class="vagas-titulo">
       <span class="ponto-vivo"></span>
@@ -29,7 +28,6 @@
     <ul class="vagas-lista" id="vagas-lista"></ul>
   </aside>
 
-  <!-- Formulário único: nome + turma + clube, tudo na mesma página -->
   <form class="card form-card" id="form-inscricao" novalidate>
     <header class="card-header">
       <h1>Inscrição no Clube</h1>
@@ -37,18 +35,19 @@
     </header>
 
     <div class="field-float">
-      <input type="text" id="input-nome" name="nome" placeholder=" " required minlength="3" autocomplete="name">
-      <label for="input-nome">Nome completo <span class="req">*</span></label>
+      <input type="text" id="nomeCompleto" name="nomeCompleto" placeholder=" " required minlength="3" autocomplete="name">
+      <label for="nomeCompleto">Nome completo <span class="req">*</span></label>
     </div>
 
     <div class="field-turmas">
       <span class="field-label">Sua turma <span class="req">*</span></span>
+      <input type="hidden" id="turma" name="turma" required>
       <div class="turmas-grupos" id="turmas-grupos" role="radiogroup" aria-label="Turma"></div>
     </div>
 
     <div class="field-clubes">
       <span class="field-label">Escolha o seu clube <span class="req">*</span></span>
-      <div id="mensagem-clubes"></div>
+      <input type="hidden" id="clubeId" name="clubeId" required>
       <div class="grid-clubes" id="grid-clubes" role="radiogroup" aria-label="Clube"></div>
     </div>
 
@@ -67,7 +66,6 @@
 
 <p class="rodape">E.E. PEI José Ephim Mindlin · Sistema de Escolha de Clubes</p>
 
-<script src="js/config.js"></script>
-<script src="js/app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

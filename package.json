@@ -1,0 +1,18 @@
+{
+  "name": "clubes-app",
+  "version": "1.0.0",
+  "description": "Sistema de Escolha de Clubes - E.E. PEI Jose Ephim Mindlin",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/duplicidade.test.js && node test/vagas-esgotadas.test.js"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "cookie-parser": "^1.4.7",
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1"
+  }
+}

@@ -1,51 +1,245 @@
-.admin-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+* {
+  box-sizing: border-box;
 }
 
-.admin-card {
-  background: var(--branco);
-  border-radius: var(--radius);
-  padding: 22px;
-  box-shadow: var(--sombra);
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  background: #eef4f3;
+  color: #202124;
 }
 
-.admin-card-full { grid-column: 1 / -1; }
+.page-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
 
-.admin-card h3 { margin-top: 0; color: var(--azul-escola); }
+.card {
+  background: #fff;
+  width: 100%;
+  max-width: 380px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  padding: 32px;
+}
 
-.admin-card select, .admin-card input[type="text"] {
+.card h1 {
+  font-size: 1.3rem;
+  margin: 0 0 6px;
+}
+
+.sub {
+  margin: 0 0 20px;
+  color: #5f6368;
+  font-size: 0.85rem;
+}
+
+.field {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+input[type='password'] {
   width: 100%;
   padding: 10px 12px;
-  border-radius: 10px;
-  border: 2px solid var(--borda);
-  margin-top: 4px;
+  font-size: 1rem;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
 }
 
-.admin-card .btn { margin-top: 12px; margin-right: 8px; }
+button {
+  background: #0f766e;
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
-.tabela-wrapper { overflow-x: auto; }
+button:hover {
+  background: #0c5f58;
+}
 
-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+button.secundario {
+  background: #fff;
+  color: #0f766e;
+  border: 1px solid #0f766e;
+}
+
+button.secundario:hover {
+  background: #eaf3f1;
+}
+
+.alert {
+  background: #fce8e6;
+  color: #c5221f;
+  border: 1px solid #f6c1bf;
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+.page-admin {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+}
+
+.topo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.topo h1 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.topo-acoes {
+  display: flex;
+  gap: 10px;
+}
+
+.atualizado-em {
+  color: #5f6368;
+  font-size: 0.8rem;
+  margin: 0 0 20px;
+}
+
+.painel-testes {
+  background: #fff9e6;
+  border: 1px solid #f2d675;
+  border-radius: 8px;
+  padding: 18px 22px 22px;
+  margin-bottom: 24px;
+}
+
+.painel-testes h2 {
+  font-size: 1rem;
+  margin: 0 0 4px;
+}
+
+.painel-testes .sub {
+  margin: 0 0 16px;
+  font-size: 0.8rem;
+  color: #6b5d1e;
+}
+
+.painel-testes-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-end;
+}
+
+.grupo-acao label {
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+
+.linha-acao {
+  display: flex;
+  gap: 8px;
+}
+
+.linha-acao input[type='number'] {
+  width: 90px;
+  padding: 8px 10px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+button.perigo-leve {
+  background: #fff;
+  color: #b06000;
+  border: 1px solid #e8a33d;
+}
+
+button.perigo-leve:hover {
+  background: #fff3de;
+}
+
+button.perigo {
+  background: #fff;
+  color: #c5221f;
+  border: 1px solid #e8a3a0;
+}
+
+button.perigo:hover {
+  background: #fce8e6;
+}
+
+.resultado-seed {
+  margin: 14px 0 0;
+  font-size: 0.85rem;
+  color: #444;
+  white-space: pre-line;
+}
+
+.tabela-wrap {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
 th, td {
   text-align: left;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--borda);
+  padding: 12px 16px;
   font-size: 0.9rem;
+  border-bottom: 1px solid #eee;
 }
 
-th { color: var(--texto-suave); }
-
-.linha-vaga {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--borda);
-  font-size: 0.9rem;
+th {
+  background: #f2f8f7;
+  font-weight: 600;
+  color: #444;
 }
 
-@media (max-width: 720px) {
-  .admin-grid { grid-template-columns: 1fr; }
+tbody tr {
+  cursor: pointer;
+}
+
+tbody tr:hover {
+  background: #f2f8f7;
+}
+
+.badge-cheia {
+  color: #c5221f;
+  font-weight: 600;
+}
+
+.detalhe {
+  margin-top: 28px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.detalhe h2 {
+  font-size: 1.1rem;
+  margin: 0 0 14px;
 }

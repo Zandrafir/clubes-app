@@ -1,164 +1,125 @@
-let senhaAdmin = '';
-let clubesCache = [];
-let inscricoesCache = [];
+const tabelaClubes = document.getElementById('tabela-clubes');
+const atualizadoEm = document.getElementById('atualizado-em');
+const detalheBox = document.getElementById('detalhe-clube');
+const detalheTitulo = document.getElementById('detalhe-titulo');
+const detalheTbody = document.getElementById('detalhe-tbody');
+const btnExportar = document.getElementById('btn-exportar');
+const btnSair = document.getElementById('btn-sair');
+const btnSeed = document.getElementById('btn-seed');
+const qtdSeed = document.getElementById('qtd-seed');
+const btnLimparTeste = document.getElementById('btn-limpar-teste');
+const btnLimparTudo = document.getElementById('btn-limpar-tudo');
+const resultadoSeed = document.getElementById('resultado-seed');
 
-document.getElementById('btn-login').addEventListener('click', fazerLogin);
-document.getElementById('input-senha').addEventListener('keydown', e => {
-  if (e.key === 'Enter') fazerLogin();
+async function carregarDados() {
+  const res = await fetch('/api/admin/inscricoes');
+  if (res.status === 401) {
+    window.location.href = '/admin/login.html';
+    return;
+  }
+  const clubes = await res.json();
+
+  tabelaClubes.innerHTML = '';
+  for (const c of clubes) {
+    const qtdTeste = c.inscritos.filter((i) => i.teste).length;
+    const tr = document.createElement('tr');
+    tr.dataset.id = c.id;
+    tr.innerHTML = `
+      <td>${c.nome}</td>
+      <td>${c.presidente}</td>
+      <td>${c.padrinho}</td>
+      <td class="${c.ocupadas >= c.limite ? 'badge-cheia' : ''}">${c.ocupadas}/${c.limite}</td>
+      <td>${c.inscritos.length} inscrito(s)${qtdTeste ? ` (${qtdTeste} de teste)` : ''} — clique para ver</td>
+    `;
+    tr.addEventListener('click', () => mostrarDetalhe(c));
+    tabelaClubes.appendChild(tr);
+  }
+
+  atualizadoEm.textContent = `Atualizado em ${new Date().toLocaleTimeString('pt-BR')}`;
+}
+
+function mostrarDetalhe(clube) {
+  detalheTitulo.textContent = `${clube.nome} — Presidente: ${clube.presidente} / Padrinho: ${clube.padrinho} (${clube.inscritos.length}/${clube.limite})`;
+  detalheTbody.innerHTML = '';
+  clube.inscritos.forEach((i, idx) => {
+    const tr = document.createElement('tr');
+    const data = new Date(i.criado_em + 'Z').toLocaleString('pt-BR');
+    const marcaTeste = i.teste ? ' <span style="color:#b06000;font-size:0.75em;">(teste)</span>' : '';
+    tr.innerHTML = `<td>${idx + 1}</td><td>${i.nome_completo}${marcaTeste}</td><td>${i.turma}</td><td>${data}</td>`;
+    detalheTbody.appendChild(tr);
+  });
+  detalheBox.hidden = false;
+  detalheBox.scrollIntoView({ behavior: 'smooth' });
+}
+
+btnExportar.addEventListener('click', () => {
+  window.location.href = '/api/admin/export.xlsx';
 });
 
-async function fazerLogin() {
-  const senha = document.getElementById('input-senha').value;
-  const msg = document.getElementById('login-msg');
-  msg.innerHTML = '<p>Verificando...</p>';
+btnSair.addEventListener('click', async () => {
+  await fetch('/api/admin/logout', { method: 'POST' });
+  window.location.href = '/admin/login.html';
+});
 
+btnSeed.addEventListener('click', async () => {
+  const quantidade = Math.min(Math.max(Number(qtdSeed.value) || 0, 1), 500);
+  btnSeed.disabled = true;
+  btnSeed.textContent = 'Gerando...';
   try {
-    const resp = await fetch(APPS_SCRIPT_URL, {
+    const res = await fetch('/api/admin/seed', {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'adminLogin', senha }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quantidade }),
     });
-    const data = await resp.json();
-    if (!data.ok) {
-      msg.innerHTML = `<div class="mensagem erro">${data.erro}</div>`;
+    const data = await res.json();
+    if (!res.ok) {
+      resultadoSeed.textContent = `Erro ao gerar dados: ${data.erro || res.status}`;
       return;
     }
-    senhaAdmin = senha;
-    document.getElementById('login-box').classList.remove('ativo');
-    document.getElementById('painel-box').classList.add('ativo');
-    await atualizarTudo();
+    resultadoSeed.textContent =
+      `Solicitado: ${data.solicitado} | Aceitas: ${data.aceitas} | Rejeitadas por falta de vaga: ${data.rejeitadas}\n` +
+      (data.rejeitadas > 0
+        ? 'Isso é esperado: quando o sorteio caiu num clube já cheio, a inscrição foi barrada — igual aconteceria com um aluno de verdade.'
+        : '');
+    await carregarDados();
   } catch (err) {
-    msg.innerHTML = `<div class="mensagem erro">Erro de conexão.</div>`;
+    resultadoSeed.textContent = 'Erro de conexão ao gerar dados de teste.';
+  } finally {
+    btnSeed.disabled = false;
+    btnSeed.textContent = 'Gerar';
   }
-}
+});
 
-document.getElementById('btn-atualizar').addEventListener('click', atualizarTudo);
+btnLimparTeste.addEventListener('click', async () => {
+  if (!confirm('Remover apenas as inscrições marcadas como "teste"? As inscrições reais/manuais não serão afetadas.')) return;
+  const res = await fetch('/api/admin/inscricoes?escopo=teste', { method: 'DELETE' });
+  const data = await res.json();
+  resultadoSeed.textContent = `${data.removidas} inscrição(ões) de teste removida(s).`;
+  await carregarDados();
+  detalheBox.hidden = true;
+});
 
-async function atualizarTudo() {
-  await Promise.all([carregarClubes(), carregarInscricoes()]);
-  preencherSelectClubes();
-  renderResumoVagas();
-  renderTabelaInscricoes();
-}
+btnLimparTudo.addEventListener('click', async () => {
+  const confirmacao = prompt(
+    'Isso vai apagar TODAS as inscrições, inclusive as feitas manualmente por você.\n\n' +
+    'ATENÇÃO: não é a sua senha de admin — digite a palavra CONFIRMAR (sem acentos, sem espaços) para prosseguir:'
+  );
 
-async function carregarClubes() {
-  const resp = await fetch(`${APPS_SCRIPT_URL}?action=listarClubes`);
-  const data = await resp.json();
-  clubesCache = data.ok ? data.clubes : [];
-}
+  if (confirmacao === null) {
+    return; // usuário clicou em cancelar
+  }
 
-async function carregarInscricoes() {
-  const resp = await fetch(`${APPS_SCRIPT_URL}?action=listarInscricoes&senha=${encodeURIComponent(senhaAdmin)}`);
-  const data = await resp.json();
-  inscricoesCache = data.ok ? data.inscricoes : [];
-}
-
-function renderResumoVagas() {
-  const container = document.getElementById('resumo-vagas');
-  container.innerHTML = clubesCache.map(c => `
-    <div class="linha-vaga">
-      <span>${c.nome}</span>
-      <strong>${c.vagasOcupadas} / ${c.vagasMax}</strong>
-    </div>
-  `).join('') || '<p>Nenhum clube cadastrado ainda.</p>';
-}
-
-function preencherSelectClubes() {
-  const select = document.getElementById('select-clube-simular');
-  select.innerHTML = clubesCache.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
-}
-
-function renderTabelaInscricoes() {
-  const tbody = document.querySelector('#tabela-inscricoes tbody');
-  tbody.innerHTML = inscricoesCache.map(i => `
-    <tr>
-      <td>${new Date(i.timestamp).toLocaleString('pt-BR')}</td>
-      <td>${i.nomeAluno}</td>
-      <td>${i.turma}</td>
-      <td>${i.clubeNome}</td>
-      <td><button class="btn btn-secundario" data-excluir="${i.linha}">Excluir</button></td>
-    </tr>
-  `).join('') || '<tr><td colspan="5">Nenhuma inscrição ainda.</td></tr>';
-
-  tbody.querySelectorAll('[data-excluir]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      if (!confirm('Excluir esta inscrição?')) return;
-      await fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'adminExcluirInscricao', senha: senhaAdmin, linha: btn.dataset.excluir }),
-      });
-      await atualizarTudo();
-    });
-  });
-}
-
-// ---------- Simulação de lote ----------
-document.getElementById('btn-simular').addEventListener('click', async () => {
-  const clubeId = document.getElementById('select-clube-simular').value;
-  const quantidade = Number(document.getElementById('input-quantidade').value) || 0;
-  const msg = document.getElementById('mensagem-simulacao');
-  msg.innerHTML = '<p>Rodando simulação...</p>';
-
-  const resp = await fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ action: 'adminSimularLote', senha: senhaAdmin, clubeId, quantidade }),
-  });
-  const data = await resp.json();
-
-  if (!data.ok) {
-    msg.innerHTML = `<div class="mensagem erro">${data.erro}</div>`;
+  if (confirmacao.trim().toUpperCase() !== 'CONFIRMAR') {
+    resultadoSeed.textContent = 'Limpeza cancelada: você precisa digitar exatamente a palavra CONFIRMAR (não é a senha de admin) para apagar tudo.';
     return;
   }
 
-  const r = data.resultados;
-  msg.innerHTML = `<div class="mensagem sucesso">Simulação concluída: ${r.sucesso} sucesso(s), ${r.falha} falha(s) (ex: vagas esgotadas).</div>`;
-  await atualizarTudo();
+  const res = await fetch('/api/admin/inscricoes?escopo=tudo', { method: 'DELETE' });
+  const data = await res.json();
+  resultadoSeed.textContent = `${data.removidas} inscrição(ões) removida(s) (todas as listas zeradas).`;
+  await carregarDados();
+  detalheBox.hidden = true;
 });
 
-document.getElementById('btn-limpar-simulacao').addEventListener('click', async () => {
-  if (!confirm('Remover todas as inscrições de teste ("Aluno Teste...")?')) return;
-  const resp = await fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ action: 'adminLimparSimulacao', senha: senhaAdmin }),
-  });
-  const data = await resp.json();
-  document.getElementById('mensagem-simulacao').innerHTML =
-    `<div class="mensagem sucesso">${data.removidas} inscrições de teste removidas.</div>`;
-  await atualizarTudo();
-});
-
-// ---------- Exportar Excel (lista de chamada por clube) ----------
-document.getElementById('btn-exportar').addEventListener('click', async () => {
-  const workbook = new ExcelJS.Workbook();
-
-  clubesCache.forEach(clube => {
-    const sheet = workbook.addWorksheet(clube.nome.substring(0, 31)); // limite do Excel para nome de aba
-    sheet.columns = [
-      { header: 'Nº', key: 'n', width: 6 },
-      { header: 'Nome do Aluno', key: 'nome', width: 36 },
-      { header: 'Turma', key: 'turma', width: 12 },
-      { header: 'Presença', key: 'presenca', width: 14 },
-    ];
-    sheet.getRow(1).font = { bold: true };
-
-    const alunos = inscricoesCache
-      .filter(i => i.clubeId === clube.id)
-      .sort((a, b) => a.nomeAluno.localeCompare(b.nomeAluno, 'pt-BR'));
-
-    alunos.forEach((aluno, idx) => {
-      sheet.addRow({ n: idx + 1, nome: aluno.nomeAluno, turma: aluno.turma, presenca: '' });
-    });
-  });
-
-  const buffer = await workbook.xlsx.writeBuffer();
-  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `Lista_Clubes_${new Date().toISOString().slice(0, 10)}.xlsx`;
-  a.click();
-  URL.revokeObjectURL(url);
-});
+carregarDados();
+setInterval(carregarDados, 10000);

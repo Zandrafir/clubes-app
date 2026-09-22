@@ -1,0 +1,5 @@
+node_modules/
+db/clubes.db
+db/clubes.db-wal
+db/clubes.db-shm
+*.log

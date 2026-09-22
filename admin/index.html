@@ -1,78 +1,69 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Admin — Escolha de Clubes</title>
-<link rel="stylesheet" href="../frontend/css/style.css">
-<link rel="stylesheet" href="admin.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<link rel="stylesheet" href="/admin/admin.css" />
 </head>
 <body>
+  <div class="page-admin">
+    <header class="topo">
+      <h1>Painel Administrativo — Clubes</h1>
+      <div class="topo-acoes">
+        <button id="btn-exportar">Exportar Excel (.xlsx)</button>
+        <button id="btn-sair" class="secundario">Sair</button>
+      </div>
+    </header>
 
-<header class="topo">
-  <div class="topo-texto">
-    <h1>Painel Admin — Escolha de Clubes</h1>
-    <p>E.E. PEI José Ephim Mindlin</p>
+    <p class="atualizado-em" id="atualizado-em"></p>
+
+    <div class="painel-testes">
+      <h2>Ferramentas de Teste</h2>
+      <p class="sub">Use durante a fase de testes, antes de liberar para os alunos de verdade. Inscrições geradas aqui ficam marcadas como "teste" e podem ser removidas separadamente.</p>
+      <div class="painel-testes-acoes">
+        <div class="grupo-acao">
+          <label for="qtd-seed">Gerar inscrições fictícias</label>
+          <div class="linha-acao">
+            <input type="number" id="qtd-seed" min="1" max="500" value="50" />
+            <button id="btn-seed">Gerar</button>
+          </div>
+        </div>
+        <div class="grupo-acao">
+          <button id="btn-limpar-teste" class="perigo-leve">Limpar só as inscrições de teste</button>
+        </div>
+        <div class="grupo-acao">
+          <button id="btn-limpar-tudo" class="perigo">Limpar TODAS as inscrições (inclusive manuais)</button>
+        </div>
+      </div>
+      <p class="resultado-seed" id="resultado-seed"></p>
+    </div>
+
+    <div class="tabela-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Clube</th>
+            <th>Presidente</th>
+            <th>Padrinho</th>
+            <th>Vagas</th>
+            <th>Inscritos</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-clubes"></tbody>
+      </table>
+    </div>
+
+    <div id="detalhe-clube" class="detalhe" hidden>
+      <h2 id="detalhe-titulo"></h2>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Nome Completo</th><th>Turma</th><th>Data</th></tr>
+        </thead>
+        <tbody id="detalhe-tbody"></tbody>
+      </table>
+    </div>
   </div>
-</header>
-
-<main>
-
-  <section class="passo ativo" id="login-box">
-    <h2>Acesso restrito</h2>
-    <div class="campo">
-      <label for="input-senha">Senha de administrador</label>
-      <input type="password" id="input-senha" placeholder="Digite a senha">
-    </div>
-    <div id="login-msg"></div>
-    <button class="btn btn-primario" id="btn-login">Entrar</button>
-  </section>
-
-  <section class="passo" id="painel-box">
-    <div class="admin-grid">
-
-      <div class="admin-card">
-        <h3>Inscrições e Vagas</h3>
-        <div id="resumo-vagas"></div>
-        <button class="btn btn-secundario" id="btn-atualizar">Atualizar</button>
-        <button class="btn btn-primario" id="btn-exportar">Baixar Excel (Chamada)</button>
-      </div>
-
-      <div class="admin-card">
-        <h3>Simular Lançamentos em Lote</h3>
-        <p class="subtitulo">Cria inscrições fictícias ("Aluno Teste...") para testar limites de vaga e concorrência.</p>
-        <div class="campo">
-          <label>Clube</label>
-          <select id="select-clube-simular"></select>
-        </div>
-        <div class="campo">
-          <label>Quantidade a simular</label>
-          <input type="text" id="input-quantidade" value="10">
-        </div>
-        <button class="btn btn-primario" id="btn-simular">Rodar Simulação</button>
-        <button class="btn btn-secundario" id="btn-limpar-simulacao">Limpar Dados de Simulação</button>
-        <div id="mensagem-simulacao"></div>
-      </div>
-
-      <div class="admin-card admin-card-full">
-        <h3>Lista de Inscrições</h3>
-        <div class="tabela-wrapper">
-          <table id="tabela-inscricoes">
-            <thead>
-              <tr><th>Data/Hora</th><th>Aluno</th><th>Turma</th><th>Clube</th><th></th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-</main>
-
-<script src="../frontend/js/config.js"></script>
-<script src="admin.js"></script>
+  <script src="/admin/admin.js"></script>
 </body>
 </html>
