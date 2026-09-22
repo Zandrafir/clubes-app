@@ -17,74 +17,51 @@
   <img src="assets/logo-pei.png" alt="Logo do Ensino Integral" onerror="this.style.display='none'">
 </header>
 
-<main>
+<main class="layout">
 
-  <!-- Passo 1: Nome do aluno -->
-  <section class="passo ativo" id="passo-nome">
-    <h2>Qual é o seu nome?</h2>
-    <p class="subtitulo">Digite seu nome completo, exatamente como está na chamada.</p>
-    <div class="campo">
-      <label for="input-nome">Nome completo</label>
-      <input type="text" id="input-nome" placeholder="Ex: Maria Silva Santos" autocomplete="name">
+  <!-- Painel de vagas em tempo real -->
+  <aside class="card vagas-card">
+    <div class="vagas-titulo">
+      <span class="ponto-vivo"></span>
+      <h2>Vagas em Tempo Real</h2>
     </div>
-    <div class="acoes">
-      <span></span>
-      <button class="btn btn-primario" id="btn-nome-avancar">Avançar</button>
-    </div>
-  </section>
+    <p class="vagas-sub">Atualizado automaticamente a cada poucos segundos.</p>
+    <ul class="vagas-lista" id="vagas-lista"></ul>
+  </aside>
 
-  <!-- Passo 2: Turma -->
-  <section class="passo" id="passo-turma">
-    <h2>Qual é a sua turma?</h2>
-    <p class="subtitulo">Toque no card da sua turma.</p>
-    <div class="grid-series" id="grid-series"></div>
-    <div class="acoes">
-      <button class="btn btn-secundario" data-voltar="passo-nome">Voltar</button>
-      <button class="btn btn-primario" id="btn-turma-avancar" disabled>Avançar</button>
-    </div>
-  </section>
+  <!-- Formulário único: nome + turma + clube, tudo na mesma página -->
+  <form class="card form-card" id="form-inscricao" novalidate>
+    <header class="card-header">
+      <h1>Inscrição no Clube</h1>
+      <p>Preencha seu nome, escolha a turma e o clube. Vagas limitadas!</p>
+    </header>
 
-  <!-- Passo 3: Clube -->
-  <section class="passo" id="passo-clube">
-    <h2>Escolha o seu Clube</h2>
-    <p class="subtitulo">Cada clube tem um número limitado de vagas. Toque no card para escolher.</p>
-    <div id="mensagem-clubes"></div>
-    <div class="grid-clubes" id="grid-clubes"></div>
-    <div class="acoes">
-      <button class="btn btn-secundario" data-voltar="passo-turma">Voltar</button>
-      <button class="btn btn-primario" id="btn-clube-avancar" disabled>Avançar</button>
+    <div class="field-float">
+      <input type="text" id="input-nome" name="nome" placeholder=" " required minlength="3" autocomplete="name">
+      <label for="input-nome">Nome completo <span class="req">*</span></label>
     </div>
-  </section>
 
-  <!-- Passo 4: Confirmação -->
-  <section class="passo" id="passo-confirmar">
-    <h2>Confirme sua inscrição</h2>
-    <p class="subtitulo">Revise os dados antes de enviar.</p>
-    <div class="resumo-final">
-      <dl>
-        <dt>Nome</dt><dd id="resumo-nome"></dd>
-        <dt>Turma</dt><dd id="resumo-turma"></dd>
-        <dt>Clube</dt><dd id="resumo-clube"></dd>
-        <dt>Presidente</dt><dd id="resumo-presidente"></dd>
-        <dt>Padrinho</dt><dd id="resumo-padrinho"></dd>
-      </dl>
+    <div class="field-turmas">
+      <span class="field-label">Sua turma <span class="req">*</span></span>
+      <div class="turmas-grupos" id="turmas-grupos" role="radiogroup" aria-label="Turma"></div>
     </div>
-    <div id="mensagem-confirmar"></div>
-    <div class="acoes">
-      <button class="btn btn-secundario" data-voltar="passo-clube">Voltar</button>
-      <button class="btn btn-primario" id="btn-confirmar-envio">Confirmar Inscrição</button>
-    </div>
-  </section>
 
-  <!-- Passo 5: Sucesso -->
-  <section class="passo" id="passo-sucesso">
-    <h2>🎉 Inscrição realizada!</h2>
-    <p class="subtitulo" id="texto-sucesso"></p>
-    <div class="acoes">
-      <span></span>
-      <button class="btn btn-primario" onclick="location.reload()">Fazer nova inscrição</button>
+    <div class="field-clubes">
+      <span class="field-label">Escolha o seu clube <span class="req">*</span></span>
+      <div id="mensagem-clubes"></div>
+      <div class="grid-clubes" id="grid-clubes" role="radiogroup" aria-label="Clube"></div>
     </div>
-  </section>
+
+    <div class="alert" id="alert-box" hidden></div>
+
+    <button type="submit" class="btn-enviar" id="btn-enviar"><span>Confirmar Inscrição</span></button>
+  </form>
+
+  <div class="card success" id="success-box" hidden>
+    <h2>🎉 Inscrição confirmada!</h2>
+    <p id="success-text"></p>
+    <button type="button" class="btn-enviar" id="btn-nova">Fazer nova inscrição</button>
+  </div>
 
 </main>
 

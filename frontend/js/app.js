@@ -1,72 +1,48 @@
-// Estado da inscrição
 const estado = {
-  nome: '',
-  turma: '',
   clubeId: null,
   clubeNome: '',
-  presidente: '',
-  padrinho: '',
 };
 
 let clubesCache = [];
+let pollingTimer = null;
 
-function mostrarPasso(id) {
-  document.querySelectorAll('.passo').forEach(p => p.classList.remove('ativo'));
-  document.getElementById(id).classList.add('ativo');
+function corPorPercentual(pct) {
+  if (pct >= 85) return 'vermelho';
+  if (pct >= 50) return 'amarelo';
+  return '';
 }
 
-document.querySelectorAll('[data-voltar]').forEach(btn => {
-  btn.addEventListener('click', () => mostrarPasso(btn.dataset.voltar));
-});
-
-// ---------- Passo 1: Nome ----------
-document.getElementById('btn-nome-avancar').addEventListener('click', () => {
-  const nome = document.getElementById('input-nome').value.trim();
-  if (nome.length < 3) {
-    alert('Digite seu nome completo.');
-    return;
-  }
-  estado.nome = nome;
-  mostrarPasso('passo-turma');
-});
-
-// ---------- Passo 2: Turma ----------
+// ---------- Turmas (mini-cards agrupados por série) ----------
 function montarGridTurmas() {
-  const container = document.getElementById('grid-series');
+  const container = document.getElementById('turmas-grupos');
+  container.innerHTML = '';
   TURMAS.forEach(bloco => {
-    const div = document.createElement('div');
-    div.className = 'serie-bloco';
-    div.innerHTML = `<h3>${bloco.serie}</h3><div class="grid-cards"></div>`;
-    const grid = div.querySelector('.grid-cards');
+    const serieNum = bloco.serie.split('º')[0];
+    const grupo = document.createElement('div');
+    grupo.className = 'turma-grupo';
+    grupo.innerHTML = `<span class="turma-grupo-label">${bloco.serie}</span><div class="turma-grupo-botoes"></div>`;
+    const botoes = grupo.querySelector('.turma-grupo-botoes');
     bloco.letras.forEach(letra => {
-      const codigo = `${bloco.serie.split('º')[0]}º${letra}`;
-      const card = document.createElement('button');
-      card.type = 'button';
-      card.className = 'card-turma';
-      card.textContent = codigo;
-      card.addEventListener('click', () => {
-        document.querySelectorAll('.card-turma').forEach(c => c.classList.remove('selecionada'));
-        card.classList.add('selecionada');
+      const codigo = `${serieNum}º${letra}`;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'turma-card';
+      btn.textContent = codigo;
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.turma-card').forEach(c => c.classList.remove('selecionada'));
+        btn.classList.add('selecionada');
         estado.turma = codigo;
-        document.getElementById('btn-turma-avancar').disabled = false;
       });
-      grid.appendChild(card);
+      botoes.appendChild(btn);
     });
-    container.appendChild(div);
+    container.appendChild(grupo);
   });
 }
 
-document.getElementById('btn-turma-avancar').addEventListener('click', async () => {
-  mostrarPasso('passo-clube');
-  await carregarClubes();
-});
-
-// ---------- Passo 3: Clubes ----------
-async function carregarClubes() {
+// ---------- Carregamento e renderização de clubes ----------
+async function carregarClubes(silencioso) {
   const msg = document.getElementById('mensagem-clubes');
-  const grid = document.getElementById('grid-clubes');
-  grid.innerHTML = '';
-  msg.innerHTML = '<p>Carregando clubes...</p>';
+  if (!silencioso) msg.innerHTML = '<p>Carregando clubes...</p>';
 
   try {
     const resp = await fetch(`${APPS_SCRIPT_URL}?action=listarClubes`);
@@ -74,41 +50,57 @@ async function carregarClubes() {
     if (!data.ok) throw new Error(data.erro || 'Erro ao carregar clubes.');
 
     clubesCache = data.clubes;
-    msg.innerHTML = '';
-    renderClubes();
+    msg.innerHTML = clubesCache.length ? '' : '<p>Nenhum clube cadastrado ainda.</p>';
+    renderVagasSidebar();
+    renderGridClubes();
   } catch (err) {
-    msg.innerHTML = `<div class="mensagem erro">Não foi possível carregar os clubes. ${err.message}</div>`;
+    if (!silencioso) msg.innerHTML = `<div class="alert">Não foi possível carregar os clubes. ${err.message}</div>`;
   }
 }
 
-function renderClubes() {
+function renderVagasSidebar() {
+  const lista = document.getElementById('vagas-lista');
+  lista.innerHTML = clubesCache.map(c => {
+    const pct = c.vagasMax > 0 ? Math.min(100, Math.round((c.vagasOcupadas / c.vagasMax) * 100)) : 0;
+    const cor = corPorPercentual(pct);
+    return `
+      <li>
+        <div class="vaga-item-nome">
+          <span>${c.nome}</span>
+          <span class="vaga-contador ${cor}">${c.vagasOcupadas}/${c.vagasMax}</span>
+        </div>
+        <div class="vaga-barra-fundo"><div class="vaga-barra-preenchida ${cor}" style="width:${pct}%"></div></div>
+      </li>
+    `;
+  }).join('');
+}
+
+function renderGridClubes() {
   const grid = document.getElementById('grid-clubes');
   grid.innerHTML = '';
 
   clubesCache.forEach(clube => {
+    const pct = clube.vagasMax > 0 ? Math.min(100, Math.round((clube.vagasOcupadas / clube.vagasMax) * 100)) : 0;
     const lotado = clube.vagasOcupadas >= clube.vagasMax;
-    const pct = clube.vagasMax > 0 ? Math.min(100, (clube.vagasOcupadas / clube.vagasMax) * 100) : 0;
+    const cor = corPorPercentual(pct);
 
-    const card = document.createElement('div');
-    card.className = `card-clube${lotado ? ' lotado' : ''}${estado.clubeId === clube.id ? ' selecionado' : ''}`;
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = `clube-card${lotado ? ' lotada' : ''}${estado.clubeId === clube.id ? ' selecionada' : ''}`;
     card.innerHTML = `
-      ${lotado ? '<span class="badge-lotado">Vagas esgotadas</span>' : ''}
-      <h3>${clube.nome}</h3>
-      <p class="professor">Presidente: ${clube.presidente}</p>
-      <p class="professor">Padrinho: ${clube.padrinho}</p>
-      <p class="resumo">${clube.resumo}</p>
-      <div class="vagas-barra"><div class="preenchido" style="width:${pct}%"></div></div>
-      <div class="vagas-texto"><span>${clube.vagasOcupadas} inscritos</span><span>${clube.vagasMax} vagas</span></div>
+      <span class="nome">${clube.nome}</span>
+      <span class="padrinho">Padrinho: ${clube.padrinho}</span>
+      <span class="presidente">Presidente: ${clube.presidente}</span>
+      <span class="resumo">${clube.resumo}</span>
+      <span class="vaga-tag ${cor}">${lotado ? 'Esgotado' : `${clube.vagasOcupadas}/${clube.vagasMax} vagas`}</span>
+      <div class="mini-barra-fundo"><div class="mini-barra-preenchida ${cor}" style="width:${pct}%"></div></div>
     `;
 
     if (!lotado) {
       card.addEventListener('click', () => {
         estado.clubeId = clube.id;
         estado.clubeNome = clube.nome;
-        estado.presidente = clube.presidente;
-        estado.padrinho = clube.padrinho;
-        document.getElementById('btn-clube-avancar').disabled = false;
-        renderClubes();
+        renderGridClubes();
       });
     }
 
@@ -116,30 +108,41 @@ function renderClubes() {
   });
 }
 
-document.getElementById('btn-clube-avancar').addEventListener('click', () => {
-  document.getElementById('resumo-nome').textContent = estado.nome;
-  document.getElementById('resumo-turma').textContent = estado.turma;
-  document.getElementById('resumo-clube').textContent = estado.clubeNome;
-  document.getElementById('resumo-presidente').textContent = estado.presidente;
-  document.getElementById('resumo-padrinho').textContent = estado.padrinho;
-  document.getElementById('mensagem-confirmar').innerHTML = '';
-  mostrarPasso('passo-confirmar');
-});
+// ---------- Envio do formulário ----------
+document.getElementById('form-inscricao').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
 
-// ---------- Passo 4: Confirmar envio ----------
-document.getElementById('btn-confirmar-envio').addEventListener('click', async () => {
-  const btn = document.getElementById('btn-confirmar-envio');
-  const msg = document.getElementById('mensagem-confirmar');
+  const nome = document.getElementById('input-nome').value.trim();
+  const alertBox = document.getElementById('alert-box');
+  alertBox.hidden = true;
+
+  if (nome.length < 3 || nome.split(' ').filter(Boolean).length < 2) {
+    alertBox.textContent = 'Digite seu nome completo (nome e sobrenome).';
+    alertBox.hidden = false;
+    return;
+  }
+  if (!estado.turma) {
+    alertBox.textContent = 'Selecione sua turma.';
+    alertBox.hidden = false;
+    return;
+  }
+  if (!estado.clubeId) {
+    alertBox.textContent = 'Selecione um clube.';
+    alertBox.hidden = false;
+    return;
+  }
+
+  const btn = document.getElementById('btn-enviar');
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Enviando...';
+  btn.innerHTML = '<span>Enviando...</span>';
 
   try {
     const resp = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // evita preflight CORS no Apps Script
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
         action: 'inscrever',
-        nomeAluno: estado.nome,
+        nomeAluno: nome,
         turma: estado.turma,
         clubeId: estado.clubeId,
       }),
@@ -147,20 +150,28 @@ document.getElementById('btn-confirmar-envio').addEventListener('click', async (
     const data = await resp.json();
 
     if (!data.ok) {
-      msg.innerHTML = `<div class="mensagem erro">${data.erro}</div>`;
+      alertBox.textContent = data.erro;
+      alertBox.hidden = false;
       btn.disabled = false;
-      btn.textContent = 'Confirmar Inscrição';
+      btn.innerHTML = '<span>Confirmar Inscrição</span>';
       return;
     }
 
-    document.getElementById('texto-sucesso').textContent =
-      `${estado.nome}, sua vaga no clube "${estado.clubeNome}" está garantida!`;
-    mostrarPasso('passo-sucesso');
+    document.getElementById('success-text').textContent =
+      `${nome}, sua vaga no clube "${estado.clubeNome}" está garantida!`;
+    document.getElementById('form-inscricao').hidden = true;
+    document.getElementById('success-box').hidden = false;
+    clearInterval(pollingTimer);
   } catch (err) {
-    msg.innerHTML = `<div class="mensagem erro">Erro de conexão. Tente novamente.</div>`;
+    alertBox.textContent = 'Erro de conexão. Tente novamente.';
+    alertBox.hidden = false;
     btn.disabled = false;
-    btn.textContent = 'Confirmar Inscrição';
+    btn.innerHTML = '<span>Confirmar Inscrição</span>';
   }
 });
 
+document.getElementById('btn-nova').addEventListener('click', () => location.reload());
+
 montarGridTurmas();
+carregarClubes(false);
+pollingTimer = setInterval(() => carregarClubes(true), 4000);
