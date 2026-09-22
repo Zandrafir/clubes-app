@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Escolha de Clubes</title>
+<link rel="stylesheet" href="../frontend/css/style.css">
+<link rel="stylesheet" href="admin.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+</head>
+<body>
+
+<header class="topo">
+  <div class="topo-texto">
+    <h1>Painel Admin — Escolha de Clubes</h1>
+    <p>E.E. PEI José Ephim Mindlin</p>
+  </div>
+</header>
+
+<main>
+
+  <section class="passo ativo" id="login-box">
+    <h2>Acesso restrito</h2>
+    <div class="campo">
+      <label for="input-senha">Senha de administrador</label>
+      <input type="password" id="input-senha" placeholder="Digite a senha">
+    </div>
+    <div id="login-msg"></div>
+    <button class="btn btn-primario" id="btn-login">Entrar</button>
+  </section>
+
+  <section class="passo" id="painel-box">
+    <div class="admin-grid">
+
+      <div class="admin-card">
+        <h3>Inscrições e Vagas</h3>
+        <div id="resumo-vagas"></div>
+        <button class="btn btn-secundario" id="btn-atualizar">Atualizar</button>
+        <button class="btn btn-primario" id="btn-exportar">Baixar Excel (Chamada)</button>
+      </div>
+
+      <div class="admin-card">
+        <h3>Simular Lançamentos em Lote</h3>
+        <p class="subtitulo">Cria inscrições fictícias ("Aluno Teste...") para testar limites de vaga e concorrência.</p>
+        <div class="campo">
+          <label>Clube</label>
+          <select id="select-clube-simular"></select>
+        </div>
+        <div class="campo">
+          <label>Quantidade a simular</label>
+          <input type="text" id="input-quantidade" value="10">
+        </div>
+        <button class="btn btn-primario" id="btn-simular">Rodar Simulação</button>
+        <button class="btn btn-secundario" id="btn-limpar-simulacao">Limpar Dados de Simulação</button>
+        <div id="mensagem-simulacao"></div>
+      </div>
+
+      <div class="admin-card admin-card-full">
+        <h3>Lista de Inscrições</h3>
+        <div class="tabela-wrapper">
+          <table id="tabela-inscricoes">
+            <thead>
+              <tr><th>Data/Hora</th><th>Aluno</th><th>Turma</th><th>Clube</th><th></th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<script src="../frontend/js/config.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

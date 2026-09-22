@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escolha de Clubes — E.E. PEI José Ephim Mindlin</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topo">
+  <img src="assets/logo-escola.jpeg" alt="Logo da Escola" onerror="this.style.display='none'">
+  <div class="topo-texto">
+    <h1>E.E. PEI José Ephim Mindlin</h1>
+    <p>Escolha de Clubes — Programa de Ensino Integral</p>
+  </div>
+  <img src="assets/logo-pei.png" alt="Logo do Ensino Integral" onerror="this.style.display='none'">
+</header>
+
+<main>
+
+  <!-- Passo 1: Nome do aluno -->
+  <section class="passo ativo" id="passo-nome">
+    <h2>Qual é o seu nome?</h2>
+    <p class="subtitulo">Digite seu nome completo, exatamente como está na chamada.</p>
+    <div class="campo">
+      <label for="input-nome">Nome completo</label>
+      <input type="text" id="input-nome" placeholder="Ex: Maria Silva Santos" autocomplete="name">
+    </div>
+    <div class="acoes">
+      <span></span>
+      <button class="btn btn-primario" id="btn-nome-avancar">Avançar</button>
+    </div>
+  </section>
+
+  <!-- Passo 2: Turma -->
+  <section class="passo" id="passo-turma">
+    <h2>Qual é a sua turma?</h2>
+    <p class="subtitulo">Toque no card da sua turma.</p>
+    <div class="grid-series" id="grid-series"></div>
+    <div class="acoes">
+      <button class="btn btn-secundario" data-voltar="passo-nome">Voltar</button>
+      <button class="btn btn-primario" id="btn-turma-avancar" disabled>Avançar</button>
+    </div>
+  </section>
+
+  <!-- Passo 3: Clube -->
+  <section class="passo" id="passo-clube">
+    <h2>Escolha o seu Clube</h2>
+    <p class="subtitulo">Cada clube tem um número limitado de vagas. Toque no card para escolher.</p>
+    <div id="mensagem-clubes"></div>
+    <div class="grid-clubes" id="grid-clubes"></div>
+    <div class="acoes">
+      <button class="btn btn-secundario" data-voltar="passo-turma">Voltar</button>
+      <button class="btn btn-primario" id="btn-clube-avancar" disabled>Avançar</button>
+    </div>
+  </section>
+
+  <!-- Passo 4: Confirmação -->
+  <section class="passo" id="passo-confirmar">
+    <h2>Confirme sua inscrição</h2>
+    <p class="subtitulo">Revise os dados antes de enviar.</p>
+    <div class="resumo-final">
+      <dl>
+        <dt>Nome</dt><dd id="resumo-nome"></dd>
+        <dt>Turma</dt><dd id="resumo-turma"></dd>
+        <dt>Clube</dt><dd id="resumo-clube"></dd>
+        <dt>Presidente</dt><dd id="resumo-presidente"></dd>
+        <dt>Padrinho</dt><dd id="resumo-padrinho"></dd>
+      </dl>
+    </div>
+    <div id="mensagem-confirmar"></div>
+    <div class="acoes">
+      <button class="btn btn-secundario" data-voltar="passo-clube">Voltar</button>
+      <button class="btn btn-primario" id="btn-confirmar-envio">Confirmar Inscrição</button>
+    </div>
+  </section>
+
+  <!-- Passo 5: Sucesso -->
+  <section class="passo" id="passo-sucesso">
+    <h2>🎉 Inscrição realizada!</h2>
+    <p class="subtitulo" id="texto-sucesso"></p>
+    <div class="acoes">
+      <span></span>
+      <button class="btn btn-primario" onclick="location.reload()">Fazer nova inscrição</button>
+    </div>
+  </section>
+
+</main>
+
+<p class="rodape">E.E. PEI José Ephim Mindlin · Sistema de Escolha de Clubes</p>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
