@@ -1,6 +1,6 @@
 // Preencha com a URL do seu Web App do Google Apps Script (apps-script/Code.gs) após o deploy.
 // Exemplo: https://script.google.com/macros/s/AKfycb.../exec
-const APPS_SCRIPT_URL = 'COLE_AQUI_A_URL_DO_APPS_SCRIPT';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxMd7oc6ukdgRH4TXf-npZ-S9UTp-OxSiTSw4dnk1laYElKUY5qfd_SVbVeUQPSP8yB3g/exec';
 
 const TURMAS = [
   { serie: '6º Ano', letras: ['A', 'B', 'C'] },
